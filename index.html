@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+  <title>Weather Mood Tracks</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/flatly/bootstrap.min.css">
+
+</head>
+
+<body>
+  <!-- CSS Icons -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+  <!-- Style to fix the issue of text extending past panel length -->
+  <style>
+    body {
+      background: url(img1.jpg); 
+    }
+    .panel-body a {
+      word-break: break-all;
+    }
+    #topPage {
+      font-size: 80px;
+      color: rgb(214, 221, 240);
+      text-align: center;
+      margin-top: 50px;
+      margin-bottom: 50px;
+
+    }
+
+  </style>
+  </head>
+
+  <body>
+
+    <!-- Main Search -->
+    <div class="container">
+
+      <!-- Jumbotron for Title -->
+      <div id="topPage">
+        <div class="text-center"><strong><i class="fa fa-music note-o"></i> Weather/Mood Tracks</strong></div>
+      </div>
+
+      <!-- Structure section -->
+      <div class="row">
+        <div class="col-sm-12">
+          <br>
+          <!-- First panel is for handling parameters -->
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <div class="panel-title text-center"><strong>Weather Location</strong></div>
+            </div>
+            <div class="panel-body">
+
+              <!-- Here we create an HTML Form for handling the inputs-->
+              <form role="form">
+
+                <!-- Here we create the text box for capturing the location data-->
+                <div class="form-group">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 style="color: rgb(57, 109, 168);">Look for a City</h3>
+                      <form class="d-flex">
+                        <input class="form-control me-2" type="search" placeholder="Ex Chicago" aria-label="Search"
+                          id="search-input">
+                        <button class="btn btn-info" type="submit" id="search-city">Search</button>
+                      </form>
+                    </div>
+                    <div class="card-body weather">
+
+                      
+                        <div class="card-text" id="icon"></div>
+                      <div class="card-text" id="city-name"></div>
+                      <div class="card-text" id="temp"></div>
+                      <div class="card-text" id="humidity"></div>
+                      <div class="card-text" id="wind"></div>
+                    </div>
+                  </div>
+
+                  <!-- Here we have the cards used for the results -->
+                  <div class="panel panel-success">
+                    <div class="panel-heading">
+                      <div class="panel-title text-center"><strong><i class="fa  fa-music note"></i> Suggested Tracks</strong></div>
+                    </div>
+
+                    <!--inserting card group here. -->
+                    <div id="songsContainer" class="container">
+                      <div id="songsRow1" class="row row-cols-auto">
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Card and Row group for saved songs -->
+                <div class="panel panel-danger">
+                  <div class="panel-heading">
+                    <div class="panel-title text-center"><strong><i class="fa  fa-music note"></i> Saved Tracks</strong></div>
+                  </div>
+
+                  <div id="songsContainer" class="container">
+                    <div id="songsRowSaved" class="row row-cols-auto">
+
+                    </div>
+                  </div>
+                </div>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    // Function to build saved song list based off users local storage
+      function buildSavedSongs() {
+        $("#songsRowSaved").empty();
+        const songsRow = $("#songsRowSaved");
+        // Accesses local storage according to 5 used spots
+        for (let i = 0; i < 5; i++) {
+          if (localStorage.getItem(i) != null) {
+            const JSobject = localStorage.getItem(i);
+            const songDict = JSON.parse(JSobject);
+            // Creating Song Card for new song
+            const songCol = $("<div>");
+            songCol.addClass("col");
+            const songCard = $("<div>");
+            songCard.addClass("card-body");
+            // getting and setting song title in card
+            const songTitle = $("<h5>");
+            songTitle.addClass("card-title");
+            const songTLink = $("<a>");
+            songTLink.text(songDict["title"]);
+            songTLink.attr("href", songDict["url"]);
+            // getting and setting song artist with link
+            const songArtist = $("<p>");
+            songArtist.addClass("card-text");
+            const songALink = $("<a>");
+            songALink.text(songDict["artist"]);
+            songALink.attr("href", songDict["url"]);
+            //creating Save button
+            const saveButton = $("<button>");
+            saveButton.addClass("btn btn-default unSaveBtn");
+            saveButton.text("Unsave");
+            //appending all items as needed
+            songTitle.append(songTLink);
+            songArtist.append(songALink);
+            songCard.append(songTitle);
+            songCard.append(songArtist);
+            songCard.append(saveButton);
+            songsRow.append(songCol);
+            songsRow.append(songCard);
+          }
+        }
+      }
+      //Function to check if song has been saved previously or not. Ensure a song is not saved twice, checks song name and artist. 
+      function checkSavedSongs(songTitle, songArtist) {
+
+        for (let i = 0; i < 5; i++) {
+          if (localStorage.getItem(i) != null) {
+            const sjDict = localStorage.getItem(i);
+            const sDict = JSON.parse(sjDict);
+            const name = sDict["title"];
+            const artist = sDict["artist"];
+
+            if (name == songTitle && songArtist == artist) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      // unsaves songs on click 
+      $(document).on("click", ".unSaveBtn", function () {
+        event.preventDefault();
+        let unsavePosition = 0;
+        //Determines song information from the button it was clicked on
+        const siblings = $(this).siblings();
+        const sTitle = siblings[0].innerText;
+        const sArtist = siblings[1].innerText;
+        //iterates through local storage to find the item to then unsave it. 
+        for (let i = 0; i < 5; i++) {
+          if(localStorage.getItem(i) != null){
+          const sjDict = localStorage.getItem(i);
+          const sDict = JSON.parse(sjDict);
+          const name = sDict["title"];
+          const artist = sDict["artist"];
+
+          if (name == sTitle && sArtist == artist) {
+            unsavePosition = i;
+            i = 5;
+          }
+        }
+        }
+        localStorage.removeItem(unsavePosition);
+        buildSavedSongs();
+      })
+      //Saves song to local storage on click
+      $(document).on("click", ".saveBtn", function () {
+        event.preventDefault();
+        let savePosition = -1;
+        //gets song information based on button clicked
+        const siblings = $(this).siblings();
+        const sTitle = siblings[0].innerText;
+        const sUrl = siblings[0].children[0].attributes[0].nodeValue;
+        const sArtist = siblings[1].innerText;
+        //checks that song has not been saved before
+        if (!checkSavedSongs(sTitle, sArtist)) {
+          for (let i = 0; i < 5; i++) {
+            console.log("checking");
+            console.log(localStorage.getItem(i));
+            if (localStorage.getItem(i) == null) {
+              savePosition = i;
+              i = 5;
+            }
+          }
+          //alerts user if all 5 save spots are already taken
+          if (savePosition == -1) {
+            alert("No more storage spots available.");
+          }
+          else {
+            const songDict = {
+              "title": sTitle,
+              "url": sUrl,
+              "artist": sArtist
+            }
+            //writes song to local storage if there is space and then rewrites saved songs based on local storage
+            const dictString = JSON.stringify(songDict);
+            localStorage.setItem(savePosition, dictString);
+            buildSavedSongs();
+          }
+        }
+        //lets users know that they cannot save the same song twice
+        else {
+          alert("This song is already saved. It cannot be saved twice.")
+        }
+      })
+
+
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"></script>
+    <!--Javascript file-->
+    <script src="script.js"></script>
+  </body>
+
+</html>
